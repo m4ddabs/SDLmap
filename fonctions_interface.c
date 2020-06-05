@@ -53,8 +53,8 @@ bool loadMedia()
 	//Loading success flag
 	bool success = true;
 
-	//Load splash image
-	gCarte = SDL_LoadBMP("carte.bmp");
+	//Load stretching surface
+	gCarte = loadSurface( "carte.bmp" );
 	if( gCarte == NULL )
 	{
 		printf( "Unable to load image %s! SDL Error: %s\n", "carte.bmp", SDL_GetError() );
@@ -62,6 +62,33 @@ bool loadMedia()
 	}
 
 	return success;
+}
+
+SDL_Surface* loadSurface( char* path )
+{
+	//The final optimized image
+	SDL_Surface* optimizedSurface = NULL;
+
+	//Load image at specified path
+	SDL_Surface* loadedSurface = SDL_LoadBMP( path );
+	if( loadedSurface == NULL )
+	{
+		printf( "Unable to load image %s! SDL Error: %s\n", path, SDL_GetError() );
+	}
+	else
+	{
+		//Convert surface to screen format
+		optimizedSurface = SDL_ConvertSurface( loadedSurface, gScreenSurface->format, 0 );
+		if( optimizedSurface == NULL )
+		{
+			printf( "Unable to optimize image %s! SDL Error: %s\n", path, SDL_GetError() );
+		}
+
+		//Get rid of old loaded surface
+		SDL_FreeSurface( loadedSurface );
+	}
+
+	return optimizedSurface;
 }
 
 void close()

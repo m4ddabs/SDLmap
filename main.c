@@ -57,8 +57,14 @@ int main( int argc, char* args[] )
 						quit = true;
 					}
 				}
-                //Apply the image
-                SDL_BlitSurface( gCarte, NULL, gScreenSurface, NULL );
+
+                //Apply the image stretched
+				SDL_Rect stretchRect;
+				stretchRect.x = 0;
+				stretchRect.y = 0;
+				stretchRect.w = SCREEN_WIDTH;
+				stretchRect.h = SCREEN_HEIGHT;
+				SDL_BlitScaled( gCarte, NULL, gScreenSurface, &stretchRect );
 
                 //Update the surface
                 SDL_UpdateWindowSurface( gWindow );
