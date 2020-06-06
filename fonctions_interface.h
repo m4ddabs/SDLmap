@@ -9,8 +9,17 @@ bool init();
 //Loads media
 bool loadMedia();
 
-//Loads individual image as texture
-SDL_Texture* loadTexture( char* path );
+struct LTexture
+{
+    //The actual hardware texture
+    SDL_Texture* mTexture;
+
+    //Image dimensions
+    int mWidth;
+    int mHeight;
+};
+
+typedef struct LTexture LTexture;
 
 //Frees media and shuts down SDL
 void close();
@@ -18,4 +27,22 @@ void close();
 void remplir_ville (Ville* ville, FILE* fichier);
 
 void affiche (Ville* ville);
+
+//Initialize Texture struct
+void LTextureInit(LTexture* t);
+
+//Free Texture struct
+void LTextureFree(LTexture* t);
+
+//Loads image at specified path
+bool loadFromFile( char* path, LTexture* t );
+
+//Deallocates texture
+void freeTexture(LTexture* t);
+
+//Renders texture at given point
+void renderButton( int x, int y, LTexture* t );
+
+//Renders the background map
+void renderMap(LTexture* t );
 

@@ -1,19 +1,18 @@
 #include "fonctions_interface.h"
 
 //Screen dimension constants
-const int SCREEN_WIDTH =  640;
-const int SCREEN_HEIGHT = 480;
+const int SCREEN_WIDTH =  1000;
+const int SCREEN_HEIGHT = 600;
 
 //The window we'll be rendering to
 SDL_Window* gWindow = NULL;
 
-
-
 //The window renderer
 SDL_Renderer* gRenderer = NULL;
 
-//Current displayed texture
-SDL_Texture* gTextureCarte = NULL;
+//Scene textures
+LTexture gButtonTexture;
+LTexture gMapTexture;
 
 
 
@@ -24,6 +23,9 @@ int main( int argc, char* args[] )
 	//Start up SDL and create window
 	if( init() )
 	{
+        LTextureInit(&gButtonTexture);
+        LTextureInit(&gMapTexture);
+
 		//Load media
 		if( loadMedia() )
 		{
@@ -61,10 +63,14 @@ int main( int argc, char* args[] )
 				}
 
 				//Clear screen
+				SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
 				SDL_RenderClear( gRenderer );
 
-				//Render texture to screen
-				SDL_RenderCopy( gRenderer, gTextureCarte, NULL, NULL );
+				//Render background texture to screen
+				renderMap( &gMapTexture );
+
+				//Render Buttons to the screen
+				renderButton( 550, 350, &gButtonTexture );
 
 				//Update screen
 				SDL_RenderPresent( gRenderer );

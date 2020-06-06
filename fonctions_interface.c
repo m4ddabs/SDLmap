@@ -12,6 +12,10 @@ extern SDL_Renderer* gRenderer;
 //Current displayed texture
 extern SDL_Texture* gTextureCarte;
 
+//Scene textures
+extern LTexture gButtonTexture;
+extern LTexture gMapTexture;
+
 
 
 
@@ -69,64 +73,123 @@ bool loadMedia()
 	//Loading success flag
 	bool success = true;
 
-	//Load PNG texture
-	gTextureCarte = loadTexture( "carte.bmp" );
-	if( gTextureCarte == NULL )
+	//Load Foo' texture
+	if( !loadFromFile( "button.bmp", &gButtonTexture) )
 	{
-		printf( "Failed to load texture image!\n" );
+		printf( "Failed to load Foo' texture image!\n" );
+		success = false;
+	}
+
+	//Load background texture
+	if( !loadFromFile( "carte.bmp", &gMapTexture ) )
+	{
+		printf( "Failed to load background texture image!\n" );
 		success = false;
 	}
 
 	return success;
 }
 
-
-SDL_Texture* loadTexture( char* path )
+//Initialize Texture struct
+void LTextureInit(LTexture* t)
 {
-    //The final texture
-    SDL_Texture* newTexture = NULL;
-
-    //Load image at specified path
-    SDL_Surface* loadedSurface = SDL_LoadBMP( path );
-    if( loadedSurface == NULL )
-    {
-        printf( "Unable to load image %s!\n", path);
-    }
-    else
-    {
-        //Create texture from surface pixels
-        newTexture = SDL_CreateTextureFromSurface( gRenderer, loadedSurface );
-        if( newTexture == NULL )
-        {
-            printf( "Unable to create texture from %s! SDL Error: %s\n", path, SDL_GetError() );
-        }
-
-        //Get rid of old loaded surface
-        SDL_FreeSurface( loadedSurface );
-    }
-
-    return newTexture;
+    //Initialize
+    t->mTexture = NULL;
+    t->mWidth = 0;
+    t->mHeight = 0;
 }
 
+//Free Texture struct
+void LTextureFree(LTexture* t)
+{
+    //Deallocate
+    free(t);
+}
 
+//Loads image at specified path
+bool loadFromFile( char* path, LTexture* t)
+{
+    //Get rid of preexisting texture
+	freeTexture(t);
+
+	//The final texture
+	SDL_Texture* newTexture = NULL;
+
+	//Load image at specified path
+	SDL_Surface* loadedSurface = SDL_LoadBMP( path );
+	if( loadedSurface == NULL )
+	{
+		printf( "Unable to load image %s!\n", path);
+	}
+	else
+	{
+		//Color key image
+		SDL_SetColorKey( loadedSurface, SDL_TRUE, SDL_MapRGB( loadedSurface->format, 0, 0xFF, 0xFF ) );
+
+		//Create texture from surface pixels
+        newTexture = SDL_CreateTextureFromSurface( gRenderer, loadedSurface );
+		if( newTexture == NULL )
+		{
+			printf( "Unable to create texture from %s! SDL Error: %s\n", path, SDL_GetError() );
+		}
+		else
+		{
+			//Get image dimensions
+			t->mWidth = loadedSurface->w;
+			t->mHeight = loadedSurface->h;
+		}
+
+		//Get rid of old loaded surface
+		SDL_FreeSurface( loadedSurface );
+	}
+
+	//Return success
+	t->mTexture = newTexture;
+	return t->mTexture != NULL;
+}
+
+//Deallocates texture
+void freeTexture(LTexture* t)
+{
+    //Free texture if it exists
+    if( t->mTexture != NULL )
+    {
+        SDL_DestroyTexture( t->mTexture );
+        t->mTexture = NULL;
+        t->mWidth = 0;
+        t->mHeight = 0;
+    }
+}
+
+//Renders texture at given point
+void renderButton( int x, int y, LTexture* t )
+{
+    //Set rendering space and render to screen
+    SDL_Rect renderQuad = { x, y, (t->mWidth)/16, (t->mHeight)/16 };
+    SDL_RenderCopy( gRenderer, t->mTexture, NULL, &renderQuad );
+}
+
+void renderMap(LTexture* t )
+{
+    //Set rendering space and render to screen
+    SDL_RenderCopy( gRenderer, t->mTexture, NULL, NULL );
+}
 
 void close()
 {
-    //Free loaded image
-    SDL_DestroyTexture( gTextureCarte );
-    gTextureCarte = NULL;
+	//Free loaded images
+	freeTexture(&gButtonTexture);
+	freeTexture(&gMapTexture);
 
-    //Destroy window
-    SDL_DestroyRenderer( gRenderer );
-    SDL_DestroyWindow( gWindow );
-    gWindow = NULL;
-    gRenderer = NULL;
+	//Destroy window
+	SDL_DestroyRenderer( gRenderer );
+	SDL_DestroyWindow( gWindow );
+	gWindow = NULL;
+	gRenderer = NULL;
 
-    //Quit SDL subsystems
-    //IMG_Quit();
-    SDL_Quit();
+	//Quit SDL subsystems
+	SDL_Quit();
 }
-
 
 void remplir_ville (Ville* ville, FILE* fichier)
 {

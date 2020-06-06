@@ -11,3 +11,5 @@ struct Ville
     char coordonnees[50];
 };
 typedef struct Ville Ville;
+
+
