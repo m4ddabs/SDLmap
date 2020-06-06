@@ -6,11 +6,15 @@ extern const int SCREEN_HEIGHT;
 //The window we'll be rendering to
 extern SDL_Window* gWindow;
 
-//The surface contained by the window
-extern SDL_Surface* gScreenSurface;
+//The window renderer
+extern SDL_Renderer* gRenderer;
 
-//The image we will load and show on the screen
-extern SDL_Surface* gCarte;
+//Current displayed texture
+extern SDL_Texture* gTextureCarte;
+
+
+
+
 
 
 bool init()
@@ -21,22 +25,39 @@ bool init()
 	//Initialize SDL
 	if( SDL_Init( SDL_INIT_VIDEO ) < 0 )
 	{
-		printf( "SDL could not initialize! SDL_Error: %s\n", SDL_GetError() );
+		printf( "SDL could not initialize! SDL Error: %s\n", SDL_GetError() );
 		success = false;
 	}
 	else
 	{
+		//Set texture filtering to linear
+		if( !SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "1" ) )
+		{
+			printf( "Warning: Linear texture filtering not enabled!" );
+		}
+
 		//Create window
-		gWindow = SDL_CreateWindow( "Interactive map", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
+		gWindow = SDL_CreateWindow( "SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
 		if( gWindow == NULL )
 		{
-			printf( "Window could not be created! SDL_Error: %s\n", SDL_GetError() );
+			printf( "Window could not be created! SDL Error: %s\n", SDL_GetError() );
 			success = false;
 		}
 		else
 		{
-			//Get window surface
-			gScreenSurface = SDL_GetWindowSurface( gWindow );
+			//Create renderer for window
+			gRenderer = SDL_CreateRenderer( gWindow, -1, SDL_RENDERER_ACCELERATED );
+			if( gRenderer == NULL )
+			{
+				printf( "Renderer could not be created! SDL Error: %s\n", SDL_GetError() );
+				success = false;
+			}
+			else
+			{
+				//Initialize renderer color
+				SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
+
+			}
 		}
 	}
 
@@ -48,57 +69,64 @@ bool loadMedia()
 	//Loading success flag
 	bool success = true;
 
-	//Load stretching surface
-	gCarte = loadSurface( "carte.bmp" );
-	if( gCarte == NULL )
+	//Load PNG texture
+	gTextureCarte = loadTexture( "carte.bmp" );
+	if( gTextureCarte == NULL )
 	{
-		printf( "Unable to load image %s! SDL Error: %s\n", "carte.bmp", SDL_GetError() );
+		printf( "Failed to load texture image!\n" );
 		success = false;
 	}
 
 	return success;
 }
 
-SDL_Surface* loadSurface( char* path )
+
+SDL_Texture* loadTexture( char* path )
 {
-	//The final optimized image
-	SDL_Surface* optimizedSurface = NULL;
+    //The final texture
+    SDL_Texture* newTexture = NULL;
 
-	//Load image at specified path
-	SDL_Surface* loadedSurface = SDL_LoadBMP( path );
-	if( loadedSurface == NULL )
-	{
-		printf( "Unable to load image %s! SDL Error: %s\n", path, SDL_GetError() );
-	}
-	else
-	{
-		//Convert surface to screen format
-		optimizedSurface = SDL_ConvertSurface( loadedSurface, gScreenSurface->format, 0 );
-		if( optimizedSurface == NULL )
-		{
-			printf( "Unable to optimize image %s! SDL Error: %s\n", path, SDL_GetError() );
-		}
+    //Load image at specified path
+    SDL_Surface* loadedSurface = SDL_LoadBMP( path );
+    if( loadedSurface == NULL )
+    {
+        printf( "Unable to load image %s!\n", path);
+    }
+    else
+    {
+        //Create texture from surface pixels
+        newTexture = SDL_CreateTextureFromSurface( gRenderer, loadedSurface );
+        if( newTexture == NULL )
+        {
+            printf( "Unable to create texture from %s! SDL Error: %s\n", path, SDL_GetError() );
+        }
 
-		//Get rid of old loaded surface
-		SDL_FreeSurface( loadedSurface );
-	}
+        //Get rid of old loaded surface
+        SDL_FreeSurface( loadedSurface );
+    }
 
-	return optimizedSurface;
+    return newTexture;
 }
+
+
 
 void close()
 {
-	//Deallocate surface
-	SDL_FreeSurface( gCarte );
-	gCarte = NULL;
+    //Free loaded image
+    SDL_DestroyTexture( gTextureCarte );
+    gTextureCarte = NULL;
 
-	//Destroy window
-	SDL_DestroyWindow( gWindow );
-	gWindow = NULL;
+    //Destroy window
+    SDL_DestroyRenderer( gRenderer );
+    SDL_DestroyWindow( gWindow );
+    gWindow = NULL;
+    gRenderer = NULL;
 
-	//Quit SDL subsystems
-	SDL_Quit();
+    //Quit SDL subsystems
+    //IMG_Quit();
+    SDL_Quit();
 }
+
 
 void remplir_ville (Ville* ville, FILE* fichier)
 {

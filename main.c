@@ -7,11 +7,15 @@ const int SCREEN_HEIGHT = 480;
 //The window we'll be rendering to
 SDL_Window* gWindow = NULL;
 
-//The surface contained by the window
-SDL_Surface* gScreenSurface = NULL;
 
-//The image we will load and show on the screen
-SDL_Surface* gCarte = NULL;
+
+//The window renderer
+SDL_Renderer* gRenderer = NULL;
+
+//Current displayed texture
+SDL_Texture* gTextureCarte = NULL;
+
+
 
 
 int main( int argc, char* args[] )
@@ -44,6 +48,7 @@ int main( int argc, char* args[] )
 
 			//Event handler
 			SDL_Event e;
+
             while(!quit)
             {
                 while( SDL_PollEvent( &e ) != 0 )
@@ -55,16 +60,15 @@ int main( int argc, char* args[] )
 					}
 				}
 
-                //Apply the image stretched
-				SDL_Rect stretchRect;
-				stretchRect.x = 0;
-				stretchRect.y = 0;
-				stretchRect.w = SCREEN_WIDTH;
-				stretchRect.h = SCREEN_HEIGHT;
-				SDL_BlitScaled( gCarte, NULL, gScreenSurface, &stretchRect );
+				//Clear screen
+				SDL_RenderClear( gRenderer );
 
-                //Update the surface
-                SDL_UpdateWindowSurface( gWindow );
+				//Render texture to screen
+				SDL_RenderCopy( gRenderer, gTextureCarte, NULL, NULL );
+
+				//Update screen
+				SDL_RenderPresent( gRenderer );
+
             }
 		}
 	}

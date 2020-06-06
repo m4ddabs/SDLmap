@@ -9,8 +9,8 @@ bool init();
 //Loads media
 bool loadMedia();
 
-//Loads individual image
-SDL_Surface* loadSurface( char* path );
+//Loads individual image as texture
+SDL_Texture* loadTexture( char* path );
 
 //Frees media and shuts down SDL
 void close();
