@@ -13,6 +13,7 @@ SDL_Renderer* gRenderer = NULL;
 //Scene textures
 LTexture gButtonTexture;
 LTexture gMapTexture;
+LTexture gAfficheville;
 
 
 
@@ -70,7 +71,15 @@ int main( int argc, char* args[] )
 				renderMap( &gMapTexture );
 
 				//Render Buttons to the screen
-				renderButton( 550, 350, &gButtonTexture );
+
+				//Santo Domingo Button
+				renderButton( 555, 360, &gButtonTexture );
+                //Santiago button
+				renderButton( 360, 110, &gButtonTexture );
+                //San Pedro de Macoris
+				renderButton( 720, 360, &gButtonTexture );
+                //La Romana
+				renderButton( 820, 365, &gButtonTexture );
 
 				//Update screen
 				SDL_RenderPresent( gRenderer );
