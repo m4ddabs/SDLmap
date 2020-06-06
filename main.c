@@ -1,14 +1,4 @@
-/*This source code copyrighted by Lazy Foo' Productions (2004-2020)
-and may not be redistributed without written permission.*/
-
-//Using SDL and standard IO
-#include <SDL.h>
-#include <stdio.h>
 #include "fonctions_interface.h"
-#include "donnees.h"
-
-
-
 
 //Screen dimension constants
 const int SCREEN_WIDTH =  640;
@@ -24,24 +14,31 @@ SDL_Surface* gScreenSurface = NULL;
 SDL_Surface* gCarte = NULL;
 
 
-
 int main( int argc, char* args[] )
 {
 
 	//Start up SDL and create window
-	if( !init() )
-	{
-		printf( "Failed to initialize!\n" );
-	}
-	else
+	if( init() )
 	{
 		//Load media
-		if( !loadMedia() )
+		if( loadMedia() )
 		{
-			printf( "Failed to load media!\n" );
-		}
-		else
-		{
+		    Ville Saint_Domingue={"","","","","",""};
+            Ville Santiago={"","","","","",""};
+            Ville San_Pedro={"","","","","",""};
+            Ville La_Romana={"","","","","",""};
+            FILE* fichier1 = fopen("ville1.txt","r");
+            FILE* fichier2 = fopen("ville2.txt","r");
+            FILE* fichier3 = fopen("ville3.txt","r");
+            FILE* fichier4 = fopen("ville4.txt","r");
+            remplir_ville(&Saint_Domingue,fichier1);
+            remplir_ville(&Santiago,fichier2);
+            remplir_ville(&San_Pedro,fichier3);
+            remplir_ville(&La_Romana,fichier4);
+            affiche(&Saint_Domingue);
+            affiche(&Santiago);
+            affiche(&San_Pedro);
+            affiche(&La_Romana);
 		    //Main loop flag
 			bool quit = false;
 
@@ -68,11 +65,7 @@ int main( int argc, char* args[] )
 
                 //Update the surface
                 SDL_UpdateWindowSurface( gWindow );
-
-                //Wait two seconds
-                SDL_Delay( 2000 );
             }
-
 		}
 	}
 

@@ -1,8 +1,4 @@
 #include "fonctions_interface.h"
-#include "donnees.h"
-#include <SDL.H>
-#include <stdio.h>
-#include <stdlib.h>
 
 extern const int SCREEN_WIDTH;
 extern const int SCREEN_HEIGHT;
@@ -15,7 +11,6 @@ extern SDL_Surface* gScreenSurface;
 
 //The image we will load and show on the screen
 extern SDL_Surface* gCarte;
-
 
 
 bool init()
@@ -32,7 +27,7 @@ bool init()
 	else
 	{
 		//Create window
-		gWindow = SDL_CreateWindow( "SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
+		gWindow = SDL_CreateWindow( "Interactive map", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
 		if( gWindow == NULL )
 		{
 			printf( "Window could not be created! SDL_Error: %s\n", SDL_GetError() );
@@ -104,3 +99,29 @@ void close()
 	//Quit SDL subsystems
 	SDL_Quit();
 }
+
+void remplir_ville (Ville* ville, FILE* fichier)
+{
+    if(fichier==NULL)
+    {
+        printf("Un probleme est survenu dans l'ouverture du fichier.\n");
+        return;
+    }
+    fgets(ville->nom,50,fichier); //recupere le nom de la ville dans le fichier
+    fgets(ville->superficie,50,fichier); //recupere la superficie
+    fgets(ville->nb_hab,50,fichier); //recupere le nb d'habitants
+    fgets(ville->code_postal,50,fichier); //recupere le code postal
+    fgets(ville->region,50,fichier); //recupere la region
+    fgets(ville->coordonnees,50,fichier); //recupere les coordonees geographiques
+}
+
+void affiche (Ville* ville)
+{
+    printf("nom : %s",ville->nom);
+    printf("superficie : %s",ville->superficie);
+    printf("nb hab : %s",ville->nb_hab);
+    printf("code postal : %s",ville->code_postal);
+    printf("region : %s",ville->region);
+    printf("coordonnees : %s\n\n",ville->coordonnees);
+}
+
