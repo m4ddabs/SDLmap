@@ -1,6 +1,6 @@
 Ville : Santiago de los Caballeros
 Superficie : 524 km2
 Nombre d'habitants : 1,14 millions d'habitants (2017)
-Code postal : code postal
-Region : region
+Code postal : 51000
+Region : Santiago
 Coordonnees : 19 deg 27 min N, 70 deg 42 min O

@@ -16,12 +16,17 @@ extern SDL_Texture* gTextureCarte;
 extern LTexture gButtonTexture;
 extern LTexture gMapTexture;
 extern LTexture gBGville;
+//Text textures
 extern LTexture gAfficheNom;
 extern LTexture gAfficheSuperficie;
 extern LTexture gAfficheNbHab;
 extern LTexture gAfficheCodePostal;
 extern LTexture gAfficheRegion;
 extern LTexture gAfficheCoordonnees;
+extern LTexture gSaint_Domingue;
+extern LTexture gSantiago;
+extern LTexture gSan_Pedro;
+extern LTexture gLa_Romana;
 
 //Font
 extern TTF_Font* police;
@@ -32,6 +37,11 @@ extern Ville Santiago;
 extern Ville San_Pedro;
 extern Ville La_Romana;
 
+//Window coordinates of the cities
+extern const Position posstdomingue;
+extern const Position possantiago;
+extern const Position possanpedro;
+extern const Position poslaromana;
 
 
 bool init()
@@ -58,7 +68,6 @@ bool init()
 			printf( "Warning: Linear texture filtering not enabled!" );
 		}
 
-		//Create window
 		gWindow = SDL_CreateWindow( "Carte de la Republique Dominicaine", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
 		if( gWindow == NULL )
 		{
@@ -87,7 +96,6 @@ bool init()
 	return success;
 }
 
-//Initialize Texture struct
 void LTextureInit(LTexture* t)
 {
     //Initialize
@@ -96,14 +104,12 @@ void LTextureInit(LTexture* t)
     t->mHeight = 0;
 }
 
-//Free Texture struct
 void LTextureFree(LTexture* t)
 {
     //Deallocate
     free(t);
 }
 
-//Loads image at specified path
 bool loadFromFile( char* path, LTexture* t)
 {
     //Get rid of preexisting texture
@@ -144,7 +150,6 @@ bool loadFromFile( char* path, LTexture* t)
 	return t->mTexture != NULL;
 }
 
-//Deallocates texture
 void freeTexture(LTexture* t)
 {
     //Free texture if it exists
@@ -157,7 +162,6 @@ void freeTexture(LTexture* t)
     }
 }
 
-//Renders texture at given point
 void renderButton( int x, int y, LTexture* t )
 {
     //Set rendering space and render to screen
@@ -171,7 +175,7 @@ void renderBackGround(LTexture* t )
     SDL_RenderCopy( gRenderer, t->mTexture, NULL, NULL );
 }
 
-void render_info (LTexture* t, Ville* ville, int x, int y)
+void render_text (LTexture* t, int x, int y)
 {
     SDL_Rect render = {x,y,t->mWidth,t->mHeight};
     SDL_RenderCopy(gRenderer,t->mTexture,NULL,&render);
@@ -251,6 +255,7 @@ bool LoadTextVille (Ville* ville)
     return success;
 }
 
+
 bool loadMedia()
 {
 	//Loading success flag
@@ -276,12 +281,43 @@ bool loadMedia()
 		success = false;
 	}
 
+	if(!LoadTextAsTexture("Saint Domingue", &gSaint_Domingue))
+    {
+        printf( "Failed to load text texture image!\n" );
+		success = false;
+    }
+
+    if(!LoadTextAsTexture("Santiago de Los Caballeros", &gSantiago))
+    {
+        printf( "Failed to load text texture image!\n" );
+		success = false;
+    }
+
+    if(!LoadTextAsTexture("San Pedro de Macoris", &gSan_Pedro))
+    {
+        printf( "Failed to load text texture image!\n" );
+		success = false;
+    }
+
+    if(!LoadTextAsTexture("San Pedro de Macoris", &gSan_Pedro))
+    {
+        printf( "Failed to load text texture image!\n" );
+		success = false;
+    }
+
+    if(!LoadTextAsTexture("La Romana", &gLa_Romana))
+    {
+        printf( "Failed to load text texture image!\n" );
+		success = false;
+    }
+
+
 	return success;
 }
 
 void close()
 {
-	//Free loaded images
+	//Free loaded Textures
 	freeTexture(&gButtonTexture);
 	freeTexture(&gMapTexture);
 	freeTexture(&gAfficheNom);
@@ -290,6 +326,10 @@ void close()
 	freeTexture(&gAfficheCodePostal);
 	freeTexture(&gAfficheRegion);
 	freeTexture(&gAfficheCoordonnees);
+	freeTexture(&gSaint_Domingue);
+	freeTexture(&gSantiago);
+	freeTexture(&gSan_Pedro);
+	freeTexture(&gLa_Romana);
 
 	//Close font
 	TTF_CloseFont(police);
@@ -305,7 +345,7 @@ void close()
 	SDL_Quit();
 }
 
-void remplir_ville (Ville* ville, FILE* fichier)
+void remplir_ville (Ville* ville, FILE* fichier,int posx, int posy)
 {
     if(fichier==NULL)
     {
@@ -318,6 +358,145 @@ void remplir_ville (Ville* ville, FILE* fichier)
     fgets(ville->code_postal,75,fichier); //recupere le code postal
     fgets(ville->region,75,fichier); //recupere la region
     fgets(ville->coordonnees,75,fichier); //recupere les coordonees geographiques
+    ville->nom[strlen(ville->nom)-1] = '\0';//Nous supprimons les retour a la ligne
+    ville->superficie[strlen(ville->superficie)-1] = '\0';
+    ville->nb_hab[strlen(ville->nb_hab)-1] = '\0';
+    ville->code_postal[strlen(ville->code_postal)-1] = '\0';
+    ville->region[strlen(ville->region)-1] = '\0';
+    ville->coordonnees[strlen(ville->coordonnees)-1] = '\0';
+    ville->buttonpos.x = posx;
+    ville->buttonpos.y = posy;
 }
 
+void ButtonEventStdomingue(Ville* ville, Position mousepos, SDL_Event* e, bool* quit_info, bool* quit)
+{
+
+    if(mousepos.x >= posstdomingue.x && mousepos.x <=((posstdomingue.x)+15) )
+    {
+        if(mousepos.y >= posstdomingue.y && mousepos.y <= ((posstdomingue.y)+15))
+        {
+            LoadTextVille(ville);
+            while(!(*quit_info))
+            {
+                SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
+                SDL_RenderClear( gRenderer );
+                renderBackGround(&gBGville);
+                render_text(&gAfficheNom,0,0);
+                render_text(&gAfficheSuperficie,0,50);
+                render_text(&gAfficheNbHab,0,100);
+                render_text(&gAfficheCodePostal,0,150);
+                render_text(&gAfficheCoordonnees,0,200);
+                SDL_RenderPresent(gRenderer);
+                SDL_WaitEvent(e);
+                if(e->type==SDL_MOUSEBUTTONDOWN)
+                {
+                    *quit_info=true;
+                }
+                if(e->type==SDL_QUIT)
+                {
+                    *quit = true;
+                    *quit_info = true;
+                }
+            }
+        }
+    }
+}
+void ButtonEventSantiago(Ville* ville, Position mousepos, SDL_Event* e, bool* quit_info, bool* quit)
+{
+    if(mousepos.x >= possantiago.x && mousepos.x <=((possantiago.x)+15) )
+    {
+        if(mousepos.y >= possantiago.y && mousepos.y <= ((possantiago.y)+15))
+        {
+            LoadTextVille(ville);
+            while(!(*quit_info))
+            {
+                SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
+                SDL_RenderClear( gRenderer );
+                renderBackGround(&gBGville);
+                render_text(&gAfficheNom,0,0);
+                render_text(&gAfficheSuperficie,0,50);
+                render_text(&gAfficheNbHab,0,100);
+                render_text(&gAfficheCodePostal,0,150);
+                render_text(&gAfficheCoordonnees,0,200);
+                SDL_RenderPresent(gRenderer);
+                SDL_WaitEvent(e);
+                if(e->type==SDL_MOUSEBUTTONDOWN)
+                {
+                    *quit_info=true;
+                }
+                if(e->type==SDL_QUIT)
+                {
+                    *quit = true;
+                    *quit_info = true;
+                }
+            }
+        }
+    }
+}
+
+void ButtonEventSanPedro(Ville* ville, Position mousepos, SDL_Event* e, bool* quit_info, bool* quit)
+{
+    if(mousepos.x >= possanpedro.x && mousepos.x <=((possanpedro.x)+15) )
+    {
+        if(mousepos.y >= possanpedro.y && mousepos.y <= ((possanpedro.y)+15))
+        {
+            LoadTextVille(ville);
+            while(!(*quit_info))
+            {
+                SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
+                SDL_RenderClear( gRenderer );
+                renderBackGround(&gBGville);
+                render_text(&gAfficheNom,0,0);
+                render_text(&gAfficheSuperficie,0,50);
+                render_text(&gAfficheNbHab,0,100);
+                render_text(&gAfficheCodePostal,0,150);
+                render_text(&gAfficheCoordonnees,0,200);
+                SDL_RenderPresent(gRenderer);
+                SDL_WaitEvent(e);
+                if(e->type==SDL_MOUSEBUTTONDOWN)
+                {
+                    *quit_info=true;
+                }
+                if(e->type==SDL_QUIT)
+                {
+                    *quit = true;
+                    *quit_info = true;
+                }
+            }
+        }
+    }
+}
+
+void ButtonEventLaromana(Ville* ville, Position mousepos, SDL_Event* e, bool* quit_info, bool* quit)
+{
+    if(mousepos.x >= poslaromana.x && mousepos.x <=((poslaromana.x)+15) )
+    {
+        if(mousepos.y >= poslaromana.y && mousepos.y <= ((poslaromana.y)+15))
+        {
+            LoadTextVille(ville);
+            while(!(*quit_info))
+            {
+                SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
+                SDL_RenderClear( gRenderer );
+                renderBackGround(&gBGville);
+                render_text(&gAfficheNom,0,0);
+                render_text(&gAfficheSuperficie,0,50);
+                render_text(&gAfficheNbHab,0,100);
+                render_text(&gAfficheCodePostal,0,150);
+                render_text(&gAfficheCoordonnees,0,200);
+                SDL_RenderPresent(gRenderer);
+                SDL_WaitEvent(e);
+                if(e->type==SDL_MOUSEBUTTONDOWN)
+                {
+                    *quit_info=true;
+                }
+                if(e->type==SDL_QUIT)
+                {
+                    *quit = true;
+                    *quit_info = true;
+                }
+            }
+        }
+    }
+}
 
