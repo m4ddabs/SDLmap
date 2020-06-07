@@ -63,10 +63,6 @@ int main( int argc, char* args[] )
             remplir_ville(&Santiago,fichier2);
             remplir_ville(&San_Pedro,fichier3);
             remplir_ville(&La_Romana,fichier4);
-            affiche(&Saint_Domingue);
-            affiche(&Santiago);
-            affiche(&San_Pedro);
-            affiche(&La_Romana);
             LoadTextVille(&Saint_Domingue);
             LoadTextVille(&Santiago);
             LoadTextVille(&San_Pedro);

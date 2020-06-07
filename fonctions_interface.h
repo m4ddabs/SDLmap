@@ -25,9 +25,8 @@ typedef struct LTexture LTexture;
 //Frees media and shuts down SDL
 void close();
 
+//stocks text from file in the different fields of structure ville
 void remplir_ville (Ville* ville, FILE* fichier);
-
-void affiche (Ville* ville);
 
 //Initialize Texture struct
 void LTextureInit(LTexture* t);

@@ -320,13 +320,4 @@ void remplir_ville (Ville* ville, FILE* fichier)
     fgets(ville->coordonnees,75,fichier); //recupere les coordonees geographiques
 }
 
-void affiche (Ville* ville)
-{
-    printf("nom : %s",ville->nom);
-    printf("superficie : %s",ville->superficie);
-    printf("nb hab : %s",ville->nb_hab);
-    printf("code postal : %s",ville->code_postal);
-    printf("region : %s",ville->region);
-    printf("coordonnees : %s\n\n",ville->coordonnees);
-}
 
