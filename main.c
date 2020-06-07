@@ -102,7 +102,6 @@ int main( int argc, char* args[] )
                             break;
                         case SDL_MOUSEBUTTONUP:
                             SDL_GetMouseState(&(mousepos.x),&(mousepos.y));
-                            printf("x = %i et y = %i\n",mousepos.x, mousepos.y);
                             //Checks if quit_info flag is set to true
                             if(quit_info)
                                 {
