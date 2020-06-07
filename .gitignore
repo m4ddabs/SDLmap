@@ -6,13 +6,13 @@
 *.exe
 *.o
 *.so
-*.TTF
+
 
 # project files #
 #################
 *.cbp
 *.layout
-
+*.depend
 # Packages #
 ############
 # it's better to unpack these files and commit the raw source
@@ -41,4 +41,4 @@
 .Trashes
 ehthumbs.db
 Thumbs.db
-2A project/
+2A Project/
