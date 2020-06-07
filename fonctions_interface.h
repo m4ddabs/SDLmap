@@ -1,4 +1,5 @@
 #include <SDL.h>
+#include <SDL_ttf.h>
 #include <stdbool.h>
 #include<string.h>
 #include "donnees.h"
@@ -44,5 +45,13 @@ void freeTexture(LTexture* t);
 void renderButton( int x, int y, LTexture* t );
 
 //Renders the background map
-void renderMap(LTexture* t );
+void renderBackGround(LTexture* t );
 
+//Renders the city's information
+void render_info (LTexture* t, Ville* ville, int x, int y);
+
+//Loads a text and converts it as a texture
+bool LoadTextAsTexture(char* text, LTexture* t);
+
+//Loads textures with the information of a city
+bool LoadTextVille (Ville* ville);

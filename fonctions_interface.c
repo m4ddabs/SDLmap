@@ -15,9 +15,22 @@ extern SDL_Texture* gTextureCarte;
 //Scene textures
 extern LTexture gButtonTexture;
 extern LTexture gMapTexture;
+extern LTexture gBGville;
+extern LTexture gAfficheNom;
+extern LTexture gAfficheSuperficie;
+extern LTexture gAfficheNbHab;
+extern LTexture gAfficheCodePostal;
+extern LTexture gAfficheRegion;
+extern LTexture gAfficheCoordonnees;
 
+//Font
+extern TTF_Font* police;
 
-
+//City
+extern Ville Saint_Domingue;
+extern Ville Santiago;
+extern Ville San_Pedro;
+extern Ville La_Romana;
 
 
 
@@ -32,7 +45,12 @@ bool init()
 		printf( "SDL could not initialize! SDL Error: %s\n", SDL_GetError() );
 		success = false;
 	}
-	else
+	else if (TTF_Init()<0)
+    {
+        printf("Could not initialize SDL_ttf! Error : %s\n",TTF_GetError());
+        success = false;
+    }
+    else
 	{
 		//Set texture filtering to linear
 		if( !SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "1" ) )
@@ -63,28 +81,7 @@ bool init()
 
 			}
 		}
-	}
-
-	return success;
-}
-
-bool loadMedia()
-{
-	//Loading success flag
-	bool success = true;
-
-	//Load Foo' texture
-	if( !loadFromFile( "button.bmp", &gButtonTexture) )
-	{
-		printf( "Failed to load Foo' texture image!\n" );
-		success = false;
-	}
-
-	//Load background texture
-	if( !loadFromFile( "carte.bmp", &gMapTexture ) )
-	{
-		printf( "Failed to load background texture image!\n" );
-		success = false;
+		police=TTF_OpenFont("imprisha.TTF",25);
 	}
 
 	return success;
@@ -141,8 +138,9 @@ bool loadFromFile( char* path, LTexture* t)
 		SDL_FreeSurface( loadedSurface );
 	}
 
-	//Return success
 	t->mTexture = newTexture;
+
+	//Return success
 	return t->mTexture != NULL;
 }
 
@@ -167,10 +165,118 @@ void renderButton( int x, int y, LTexture* t )
     SDL_RenderCopy( gRenderer, t->mTexture, NULL, &renderQuad );
 }
 
-void renderMap(LTexture* t )
+void renderBackGround(LTexture* t )
 {
     //Set rendering space and render to screen
     SDL_RenderCopy( gRenderer, t->mTexture, NULL, NULL );
+}
+
+void render_info (LTexture* t, Ville* ville, int x, int y)
+{
+    SDL_Rect render = {x,y,t->mWidth,t->mHeight};
+    SDL_RenderCopy(gRenderer,t->mTexture,NULL,&render);
+}
+
+bool LoadTextAsTexture(char* text, LTexture* t)
+{
+    freeTexture(t);
+
+    SDL_Texture* NewTexture = NULL;
+
+    SDL_Color noir = {0,0,0};
+    //Render text surface
+    SDL_Surface* textSurface = TTF_RenderText_Blended( police, text , noir );
+    if( textSurface == NULL )
+    {
+        printf( "Unable to render text surface! SDL_ttf Error: %s\n", TTF_GetError() );
+    }
+    else
+    {
+        //Create texture from surface pixels
+        NewTexture = SDL_CreateTextureFromSurface( gRenderer, textSurface );
+        if( NewTexture == NULL )
+        {
+            printf( "Unable to create texture from rendered text! SDL Error: %s\n", SDL_GetError() );
+        }
+        else
+        {
+            //Get image dimensions
+            t->mWidth = textSurface->w;
+            t->mHeight = textSurface->h;
+        }
+
+        //Get rid of old surface
+        SDL_FreeSurface( textSurface );
+    }
+
+    t->mTexture=NewTexture;
+
+    //Return success
+    return t->mTexture != NULL;
+}
+
+bool LoadTextVille (Ville* ville)
+{
+    bool success = true;
+    if(!LoadTextAsTexture(ville->nom,&gAfficheNom))
+    {
+        printf("Could not load city's name.\n");
+        success = false;
+    }
+    if(!LoadTextAsTexture(ville->superficie,&gAfficheSuperficie))
+    {
+        printf("Could not load city's area.\n");
+        success = false;
+    }
+    if(!LoadTextAsTexture(ville->nb_hab,&gAfficheNbHab))
+    {
+        printf("Could not load city's nb of inhabitants.\n");
+        success = false;
+    }
+    if(!LoadTextAsTexture(ville->code_postal,&gAfficheCodePostal))
+    {
+        printf("Could not load city's postal code.\n");
+        success = false;
+    }
+    if(!LoadTextAsTexture(ville->region,&gAfficheRegion))
+    {
+        printf("Could not load city's region.\n");
+        success = false;
+    }
+    if(!LoadTextAsTexture(ville->coordonnees,&gAfficheCoordonnees))
+    {
+        printf("Could not load city's location.\n");
+        success = false;
+    }
+    return success;
+}
+
+bool loadMedia()
+{
+	//Loading success flag
+	bool success = true;
+
+	//Load Foo' texture
+	if( !loadFromFile( "button.bmp", &gButtonTexture) )
+	{
+		printf( "Failed to load button texture image!\n" );
+		success = false;
+	}
+
+	if( !loadFromFile("beige.bmp",&gBGville) )
+    {
+        printf("Failed to load background info texture image!\n");
+        success = false;
+    }
+
+	//Load background texture
+	if( !loadFromFile( "carte.bmp", &gMapTexture ) )
+	{
+		printf( "Failed to load map texture image!\n" );
+		success = false;
+	}
+
+	return success;
 }
 
 void close()
@@ -178,6 +284,15 @@ void close()
 	//Free loaded images
 	freeTexture(&gButtonTexture);
 	freeTexture(&gMapTexture);
+	freeTexture(&gAfficheNom);
+	freeTexture(&gAfficheSuperficie);
+	freeTexture(&gAfficheNbHab);
+	freeTexture(&gAfficheCodePostal);
+	freeTexture(&gAfficheRegion);
+	freeTexture(&gAfficheCoordonnees);
+
+	//Close font
+	TTF_CloseFont(police);
 
 	//Destroy window
 	SDL_DestroyRenderer( gRenderer );
@@ -186,6 +301,7 @@ void close()
 	gRenderer = NULL;
 
 	//Quit SDL subsystems
+	TTF_Quit();
 	SDL_Quit();
 }
 
@@ -196,12 +312,12 @@ void remplir_ville (Ville* ville, FILE* fichier)
         printf("Un probleme est survenu dans l'ouverture du fichier.\n");
         return;
     }
-    fgets(ville->nom,50,fichier); //recupere le nom de la ville dans le fichier
-    fgets(ville->superficie,50,fichier); //recupere la superficie
-    fgets(ville->nb_hab,50,fichier); //recupere le nb d'habitants
-    fgets(ville->code_postal,50,fichier); //recupere le code postal
-    fgets(ville->region,50,fichier); //recupere la region
-    fgets(ville->coordonnees,50,fichier); //recupere les coordonees geographiques
+    fgets(ville->nom,75,fichier); //recupere le nom de la ville dans le fichier
+    fgets(ville->superficie,75,fichier); //recupere la superficie
+    fgets(ville->nb_hab,75,fichier); //recupere le nb d'habitants
+    fgets(ville->code_postal,75,fichier); //recupere le code postal
+    fgets(ville->region,75,fichier); //recupere la region
+    fgets(ville->coordonnees,75,fichier); //recupere les coordonees geographiques
 }
 
 void affiche (Ville* ville)

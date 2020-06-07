@@ -3,12 +3,12 @@
 
 struct Ville
 {
-    char nom[50];
-    char superficie[50];
-    char nb_hab[50];
-    char code_postal[50];
-    char region[50];
-    char coordonnees[50];
+    char nom[75];
+    char superficie[75];
+    char nb_hab[75];
+    char code_postal[75];
+    char region[75];
+    char coordonnees[75];
 };
 typedef struct Ville Ville;
 

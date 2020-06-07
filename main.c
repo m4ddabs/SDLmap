@@ -13,9 +13,23 @@ SDL_Renderer* gRenderer = NULL;
 //Scene textures
 LTexture gButtonTexture;
 LTexture gMapTexture;
-LTexture gAfficheville;
+LTexture gBGville;
+LTexture gAfficheNom;
+LTexture gAfficheSuperficie;
+LTexture gAfficheNbHab;
+LTexture gAfficheCodePostal;
+LTexture gAfficheRegion;
+LTexture gAfficheCoordonnees;
 
 
+//Font
+TTF_Font* police = NULL;
+
+//City
+Ville Saint_Domingue;
+Ville Santiago;
+Ville San_Pedro;
+Ville La_Romana;
 
 
 int main( int argc, char* args[] )
@@ -26,6 +40,13 @@ int main( int argc, char* args[] )
 	{
         LTextureInit(&gButtonTexture);
         LTextureInit(&gMapTexture);
+        LTextureInit(&gBGville);
+        LTextureInit(&gAfficheNom);
+        LTextureInit(&gAfficheSuperficie);
+        LTextureInit(&gAfficheNbHab);
+        LTextureInit(&gAfficheCodePostal);
+        LTextureInit(&gAfficheRegion);
+        LTextureInit(&gAfficheCoordonnees);
 
 		//Load media
 		if( loadMedia() )
@@ -46,8 +67,13 @@ int main( int argc, char* args[] )
             affiche(&Santiago);
             affiche(&San_Pedro);
             affiche(&La_Romana);
+            LoadTextVille(&Saint_Domingue);
+            LoadTextVille(&Santiago);
+            LoadTextVille(&San_Pedro);
+            LoadTextVille(&La_Romana);
 		    //Main loop flag
 			bool quit = false;
+			bool quit_info = false;
 
 			//Event handler
 			SDL_Event e;
@@ -57,9 +83,28 @@ int main( int argc, char* args[] )
                 while( SDL_PollEvent( &e ) != 0 )
 				{
 					//User requests quit
-					if( e.type == SDL_QUIT )
+					switch(e.type)
 					{
-						quit = true;
+						case SDL_QUIT:
+                            quit = true;
+                            break;
+                        case SDL_MOUSEBUTTONUP:
+                            while(!quit_info)
+                            {
+                                SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
+                                SDL_RenderClear( gRenderer );
+                                renderBackGround(&gBGville);
+                                render_info(&gAfficheNom,&Santiago,0,0);
+                                render_info(&gAfficheSuperficie,&Santiago,0,50);
+                                render_info(&gAfficheNbHab,&Santiago,0,100);
+                                render_info(&gAfficheCodePostal,&Santiago,0,150);
+                                render_info(&gAfficheCoordonnees,&Santiago,0,200);
+                                SDL_RenderPresent(gRenderer);
+                                SDL_WaitEvent(&e);
+                                if(e.type==SDL_MOUSEBUTTONDOWN)
+                                    quit_info=true;
+                            }
+                            break;
 					}
 				}
 
@@ -68,7 +113,7 @@ int main( int argc, char* args[] )
 				SDL_RenderClear( gRenderer );
 
 				//Render background texture to screen
-				renderMap( &gMapTexture );
+				renderBackGround( &gMapTexture );
 
 				//Render Buttons to the screen
 
